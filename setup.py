@@ -4,8 +4,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="hackhttp",  # Replace with your own username
-    version="0.0.1",
+    name="hackhttp2",  # Replace with your own username
+    version="0.0.2",
     author="ybw",
     author_email="2756456886@qq.com",
     description="A small example package",

@@ -6,14 +6,14 @@ from copyheaders import headers_raw_to_dict
 from requests_toolbelt.adapters import source
 import urllib3
 import netifaces
-from .utils import eth2ip
 from threading import Thread
 import contextlib
 import os
 import httpx
 import asyncio
 import time
-from pwn import info
+import netifaces
+from pwn import info, success, error, warnings
 
 urllib3.disable_warnings()
 # TODO choose long conn & short conn in hackhttp
@@ -24,6 +24,23 @@ urllib3.disable_warnings()
 
 j = os.path.join
 
+def eth2ip(interface: str) -> (bool, str):
+    """
+    Get interface ip by device name
+
+    :param interface: network interface
+    :return:  statue, ip
+    """
+    ifs = netifaces.interfaces()
+    if interface in ifs:
+        if netifaces.AF_INET in netifaces.ifaddresses(interface):
+            ip_matrix = netifaces.ifaddresses(interface)[netifaces.AF_INET][0]
+            info(f"using [{interface}]: {ip_matrix['addr']}")
+            return ip_matrix['addr']
+        else:
+            error('Interface Do Not Have Ipv4 Address!')
+    else:
+        error('Interface Not Exists!')
 
 class Request:
     def __init__(self, globals, base_args):
@@ -190,8 +207,3 @@ class hackhttp():
         yield Pool_Coroutine()
         self.globals.client = r.Session()
 
-@contextlib.contextmanager
-def timer(name=""):
-    st = time.time()
-    yield
-    info(f"{name} %.3f" % (time.time()-st))
