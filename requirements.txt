@@ -1,0 +1,4 @@
+urllib3==1.25.7
+requests_toolbelt
+pwntools
+
