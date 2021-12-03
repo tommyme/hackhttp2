@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="hackhttp2",  # Replace with your own username
-    version="0.0.2",
+    version="0.0.4",
     author="ybw",
     author_email="2756456886@qq.com",
     description="A small example package",
@@ -17,5 +17,10 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     # include_package_data=True,
     python_requires='>=3.0',
+    install_requires=[
+        "requests-toolbelt",
+        "netifaces",
+        "httpx"
+    ]
 )
 

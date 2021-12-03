@@ -1,19 +1,21 @@
 import requests as r
 import urllib
-import urllib3
 from http.cookies import SimpleCookie
-from copyheaders import headers_raw_to_dict
+from .utils.utils import headers_raw_to_dict
 from requests_toolbelt.adapters import source
 import urllib3
 import netifaces
 from threading import Thread
 import contextlib
 import os
+import json
 import httpx
 import asyncio
 import time
-import netifaces
-from pwn import info, success, error, warnings
+try:
+    from pwn import info, success, error, warnings
+except:
+    info, success, error, warnings = print, print, print, print
 
 urllib3.disable_warnings()
 # TODO choose long conn & short conn in hackhttp
@@ -101,6 +103,7 @@ class Globals:
     long_conn = True
     https=True
     root=""
+    proxies = {}
     client = r.Session() # client.trust_env = True # by default
     def set_proxy(self, proxies):
         """
@@ -111,6 +114,7 @@ class Globals:
                 "http": f"http://{proxies}",
                 "https": f"https://{proxies}"
             }
+            self.proxies = proxies
         self.kwargs.update({"proxies":proxies})
 
     def via_eth(self, eth="", ip=""):
@@ -165,10 +169,13 @@ class hackhttp():
         self.globals = Globals()
 
     def load_raw(self, path):
+        print("loading raw")
         with open(j(self.globals.root, path),"r") as f:
             method, path_qs, ver_http = f.readline().strip().split()
             content = f.read()
-        headers = headers_raw_to_dict(content)
+        
+        headers_raw = content.split("\n\n")[0]
+        headers = headers_raw_to_dict(headers_raw)
         
         # cookie
         cookies = hack_cookie(headers.get("Cookie","")).dict
@@ -183,10 +190,12 @@ class hackhttp():
         if method == "POST":
             lines = content.split("\n")
             url_encode_data = lines[lines.index("")+1]
+            print(url_encode_data)
             content_type = headers.get("Content-Type","")
             if content_type == 'application/x-www-form-urlencoded':
                 data = dict([item.split('=') for item in url_encode_data.split('&')])
-
+            elif content_type == 'application/json':
+                data = json.loads(url_encode_data)
         args_dict = {
             "method":   method,
             "url":      base_url,
